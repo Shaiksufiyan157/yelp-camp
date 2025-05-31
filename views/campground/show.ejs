@@ -1,0 +1,100 @@
+<% layout('layout/boilerplate') %>
+<link rel="stylesheet" href="/stylesheets/stars.css">
+<div class="row">
+    <div class="col-6">
+        <div class="card mb-3">
+            <div id="campgroundcarousel" class="carousel slide" data-ride="carousel">
+              <div class="carousel-inner">
+                <% for(let i=0; i<camp.images.length; i++) { %>
+                <div class=" w-100 h-100 carousel-item <%= i==0 ? 'active' : '' %>">
+                  <img crossorigin="anonymous" src="<%= camp.images[i].url %>" class="d-block w-100 h-50 img-thumbnail" alt="...">
+                </div>
+                <% } %>
+              </div>
+              <%if(camp.images.length > 1) {%>
+              <a class="carousel-control-prev" href="#campgroundcarousel" role="button" data-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="sr-only">Previous</span>
+              </a>
+              <a class="carousel-control-next" href="#campgroundcarousel" role="button" data-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="sr-only">Next</span>
+              </a>
+              </div><% } %>
+            <div class="card-body">
+              <h5 class="card-title"><%= camp.name %></h5>
+              <p class="card-text"><%= camp.description %></p>
+            </div>
+            <ul class="list-group list-group-flush">
+              <li class="list-group-item">
+                <!-- <i class="bi bi-geo-alt-fill"></i> -->
+                <%= camp.location %></li>
+              <li class="list-group-item">$<%= camp.price %>/Night</li>
+              <li class="list-group-item">submitted by <%= camp.author.username %></li>
+            </ul>
+            <% if(currentUser && camp.author.equals(currentUser)) {%>
+            <div class="card-body">
+                <form class="d-inline" action="/camps/<%= camp._id %>?_method=DELETE" method="POST">
+                    <button class="btn btn-danger card-link">remove</button>
+                </form>
+                <a class="btn btn-warning" href="/camps/<%= camp._id %>/edit">edit</a>
+            </div>
+            <% } %>  
+</div>
+    </div>
+    <div class="col-6">
+     <div id="map"></div>
+      <%if(currentUser) {%>
+      <h1>Leave a comment</h1>
+      <form action="/camps/<%= camp._id %>/reviews" method="post" class="mb-3 needs-validation" novalidate>
+        <div class="mb-3">
+          <fieldset class="starability-basic">
+            <legend>First rating:</legend>
+            <input type="radio" id="no-rate" class="input-no-rate" name="review[rating]" value="1" checked aria-label="No rating." />
+            <input type="radio" id="first-rate1" name="review[rating]" value="1" />
+            <label for="first-rate1" title="Terrible">1 star</label>
+            <input type="radio" id="first-rate2" name="review[rating]" value="2" />
+            <label for="first-rate2" title="Not good">2 stars</label>
+            <input type="radio" id="first-rate3" name="review[rating]" value="3" />
+            <label for="first-rate3" title="Average">3 stars</label>
+            <input type="radio" id="first-rate4" name="review[rating]" value="4" />
+            <label for="first-rate4" title="Very good">4 stars</label>
+            <input type="radio" id="first-rate5" name="review[rating]" value="5" />
+            <label for="first-rate5" title="Amazing">5 stars</label>
+          </fieldset>
+        </div>
+        <div class="mb-3">
+          <label class="form-label" for="body">Review</label>
+          <textarea class="form-control" name="review[body]" id="body" cols="30" rows="3" required></textarea>
+          <div class="valid-feedback">
+            Looks good!
+          </div>
+        </div>
+        <button class="btn btn-success">submit</button>
+      </form>
+      <% } %>
+      <% for(let review of camp.reviews) { %>
+        <h4>Reviews</h4>
+        <div class="card mb-3 ">
+            <div class="card-body">
+              <h6 class="card-subtitle text-muted mb-3"><%= review.author.username %></h6>
+                <p class="starability-result" data-rating="<%= review.rating %>">
+                  Rated: <%= review.rating %>stars
+                </p>
+                <p class="card-text">Review: <%= review.body %></p>
+                <% if(currentUser && review.author.equals(currentUser._id)) {%>
+                <form action="/camps/<%=camp._id%>/reviews/<%=review._id%>?_method=DELETE" method="POST">
+                    <button class="btn btn-sm btn-danger">Delete</button>
+                </form>
+                <% } %>
+            </div>
+        </div>
+        <% } %>
+    </div>
+</div>
+
+<script>
+  const maptilerApiKey = '<%- process.env.MAPTILER_API_KEY %>';
+  const camp= <%-JSON.stringify(camp)%>
+</script>
+<script src="/javascript/showPageMap.js"></script>
