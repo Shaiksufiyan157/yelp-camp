@@ -8,7 +8,6 @@ const mongoose=require('mongoose')
 const methodoverride=require('method-override');
 const ejsMate=require('ejs-mate');
 const ExpressError=require('./utils/ExpressErrors')
-
 const campgroundRouter=require('./routers/campground.js')
 const reviewRouter=require('./routers/reviews.js')
 const session=require('express-session')
@@ -26,8 +25,7 @@ mongoose.set('strictQuery', true);
 
 const MongoDBStore = require('connect-mongo');
 
-const dbUrl='mongodb://localhost:27017/yelp-camp'
-
+const dbUrl=process.env.DB_URL||'mongodb://localhost:27017/yelp-camp'
 
 
 mongoose.connect(dbUrl, {
@@ -189,7 +187,7 @@ app.use('/camps/:id/reviews',reviewRouter)
 app.use('/',userRoute)
 
 app.get('/',(req,res)=>{
-res.render('home')})
+res.render('home.ejs')})
 
 app.all('*',(req,res,next)=>{
     next(new ExpressError('page not found',404))
